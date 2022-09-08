@@ -18,6 +18,7 @@ async function run(){
     try{
         await client.connect();
          const serviceCollection = client.db('doctors_portal').collection('services');
+         const  bookingCollection = client.db('doctors_portal').collection('bookings');
 
          app.get('/service', async(req, res)=>{
             const query = {};
@@ -27,7 +28,7 @@ async function run(){
 
          });
 
-         
+
          /**
           * API Naming convention
           * app.get('/booking') //get all booking in this collection
@@ -38,6 +39,12 @@ async function run(){
           * 
           * 
          */
+
+         app.post('/booking', async(req, res)=>{
+          const booking= req.body; //data read
+          const result= await bookingCollection.insertOne(booking);
+          res.send(result);
+         })
     }
     finally{
 
