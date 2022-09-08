@@ -25,7 +25,19 @@ async function run(){
             const services = await cursor.toArray();
             res.send(services);
 
-         })
+         });
+
+         
+         /**
+          * API Naming convention
+          * app.get('/booking') //get all booking in this collection
+          * app.get('/booking/:id') // get a specific booking
+          * app.post('/booking') //add a new booking
+          * app.patch('/booking/:id') // update booking signle person information
+          * app.delete('/booking/:id')//for delete
+          * 
+          * 
+         */
     }
     finally{
 
