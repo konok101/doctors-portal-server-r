@@ -31,9 +31,10 @@ async function run() {
     //available appainment slots
     app.get('/available', async (req, res) => {
       const date = req.query.date;
+      console.log('date', date);
 
       // step 1:  get all services
-      const q={};
+      const q = {};
       const services = await serviceCollection.find(q).toArray();
 
       //step 2: get the booking of the day
@@ -52,7 +53,7 @@ async function run() {
         //step 5: select slots for the service bookings
         const bookedSlots = serviceBooking.map(book => book.slot);
         // step:6 seletet those slots that are not in booked slots
-        const available = service.slots.filter(slot => ! bookedSlots.includes(slot));
+        const available = service.slots.filter(slot => !bookedSlots.includes(slot));
         //step 7: 
         service.slots = available;
       })
@@ -78,12 +79,14 @@ async function run() {
     */
 
     // Bookings patient
-    app.get('/bookings', async (req, res) => {
+    app.get('/bookingPatients', async (req, res) => {
       const patinent = req.query.patient;
-       console.loxg("sas");
+      console.log("sas", patinent);
       const query = { patient: patinent };
-      const bookings = await bookingsCollection.find(query).toArray();
-      res.send(bookings);
+      console.log("asa query",query);
+      const bookingPatient = await bookingsCollection.find(query).toArray();
+      console.log("booking",bookingPatient);
+      res.send(bookingPatient);
 
     })
 
