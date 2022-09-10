@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
@@ -14,11 +16,28 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// function verifyJWT(req, res, next) {
+
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader) {
+//     return res.status(401).send({ message: 'unAuthorized access' })
+//   }
+//   const token = authHeader.split('')[1];
+//   jwt.verify(token, process.env.ACCES_TOKEN_SECRET, function (err, decoded) {
+//     if (err) {
+//       return res.status(403).send({ message: 'forbidden access' });
+//     }
+//     req.decoded = decoded;
+//     next();
+//   });
+// }
+
 async function run() {
   try {
     await client.connect();
     const serviceCollection = client.db('doctors_portal').collection('services');
     const bookingsCollection = client.db('doctors_portal').collection('booked');
+    const userCollection = client.db('doctors_portal').collection('users');
 
     app.get('/service', async (req, res) => {
       const query = {};
@@ -28,10 +47,29 @@ async function run() {
 
     });
 
+    app.put('/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      const token = jwt.sign({ email: email }, process.env.ACCES_TOKEN_SECRET, { expiresIn: '1h' })
+      res.send({ result, token });
+
+
+    })
+
+
+
+
     //available appainment slots
     app.get('/available', async (req, res) => {
       const date = req.query.date;
       console.log('date', date);
+
 
       // step 1:  get all services
       const q = {};
@@ -79,14 +117,14 @@ async function run() {
     */
 
     // Bookings patient
-    app.get('/bookingPatients', async (req, res) => {
+    app.get('/booking', async (req, res) => {
       const patinent = req.query.patient;
-      console.log("sas", patinent);
+
       const query = { patient: patinent };
-      console.log("asa query",query);
-      const bookingPatient = await bookingsCollection.find(query).toArray();
-      console.log("booking",bookingPatient);
-      res.send(bookingPatient);
+      const bookings = await bookingsCollection.find(query).toArray();
+      res.send(bookings);
+
+
 
     })
 
